@@ -18,7 +18,7 @@ npm run build
 ## 目录结构
 
 ```
-
+└─static                                   // static 放不需要webpack做处理的静态资源         
 └─src                                      // src 文件夹
 │    ├─pages                               // 页面文件夹
 │    │  ├─about
@@ -26,26 +26,23 @@ npm run build
 │    │  │      about.js
 │    │  │      about.less
 │    │  │
-│    │  ├─contact
-│    │  │      contact.css
-│    │  │      contact.html
-│    │  │      contact.js
 │    │  │
-│    │  └─home
+│    │  │
+│    │  │
+│    │  │
+│    │  │
+│    │  └─index
 │    │          index.html
 │    │          index.js
 │    │          index.less
 │    │
-│    └─tools                          // 工具文件夹
-│            utils.js
+│    └─assets                          // 公共js,css,img文件夹
+│
 │
 │  .babelrc                         // babel的配置文件
 │  .eslintignore
-│  .eslintrc.js                     // eslint的配置文件
 │  .gitignore
-│  ecosystem.config.js              // pm2 deploy的配置文件
 │  package.json
-│  page.config.js                   // 页面的配置文件
 │  README.md
 │  webpack.config.dev.js            // 开发环境的webpack配置文件
 │  webpack.config.prod.js           // 生成环境的webpack配置文件
@@ -55,16 +52,4 @@ npm run build
 
 ## 开发流程
 
-如果增加新页面，只需两步，不需要改webpack等配置文件
-
-1. 在pages中新增一个文件夹
-2. 在page.config.js中添加这个页面的信息即可
-
-比如
-```
-  {
-    name: 'contact',
-    html: 'contact/contact.html',
-    jsEntry: 'contact/contact.js'
-  }
-
+如果增加新页面，需要在pages下增加一个文件夹，html,css,js的文件命名需与文件夹保持一致
