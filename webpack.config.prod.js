@@ -1,10 +1,12 @@
 
-const path = require('path')  
+const path = require('path');
+const glob = require('glob');
 const HtmlWebpackPlugin = require('html-webpack-plugin');  
 const ExtractTextPlugin = require("extract-text-webpack-plugin");  
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
-const pageConfig = require('./page.config.js');
+
+const resolve = dir => path.resolve(__dirname, dir);
 
 class ChunksFromEntryPlugin {
   apply (compiler) {
@@ -13,7 +15,9 @@ class ChunksFromEntryPlugin {
               'ChunksFromEntryPlugin',
               (_, { plugin }) => {
                   // takes entry name passed via HTMLWebpackPlugin's options
+                  console.log(plugin)
                   const entry = plugin.options.entry;
+                  console.log(entry)
                   const entrypoint = compilation.entrypoints.get(entry);
 
                   return entrypoint.chunks.map(chunk =>
@@ -40,6 +44,12 @@ let webpackConfig = {
     path: path.join(__dirname, "./dist/"),  
     filename: 'static/js/[name].[hash:7].js',  
     publicPath: '/',  
+  },
+  resolve: {
+      // 设置别名
+      alias: {
+          '@': resolve('src')// 这样配置后 @ 可以指向 src 目录
+      }
   },
   module: {
     rules: [
@@ -148,17 +158,38 @@ let webpackConfig = {
   }
 };
 
+
+function getEntry () {
+  let globPath = './src/pages/**/*.html'
+  // (\/|\\\\) 这种写法是为了兼容 windows和 mac系统目录路径的不同写法
+  let pathDir = 'src(\/|\\\\)(.*?)(\/|\\\\)html'
+  let files = glob.sync(globPath)
+  let dirname, entries = []
+  for (let i = 0; i < files.length; i++) {
+    dirname = path.dirname(files[i])
+    var name = dirname.replace(new RegExp('^' + pathDir), '$2').slice(12);
+    var obj = {
+      name,
+      html: `./src/pages/${name}/${name}.html`,
+      jsEntry: `./src/pages/${name}/${name}.js`,
+    }
+    entries.push(obj)
+  }
+  return entries
+}
+
+const pageConfig = getEntry();
+
 if(pageConfig && Array.isArray(pageConfig)){
   pageConfig.map(page => {
-    webpackConfig.entry[page.name] = `./src/pages/${page.jsEntry}`;
+    webpackConfig.entry[page.name] = page.jsEntry;
     webpackConfig.plugins.push(new HtmlWebpackPlugin({
       filename: path.join(__dirname,`/dist/${page.name}.html`),
-      template: path.join(__dirname,`/src/pages/${page.html}`),
+      template: path.join(__dirname,`/src/pages/${page.name}/${page.name}.html`),
       inject: true,
       entry: page.name,
       chunks: [page.name],  
       inlineSource: '.(js|css)$',
-      // minify:false,
       minify: {
         removeComments: true,
         collapseWhitespace: true,
@@ -170,5 +201,6 @@ if(pageConfig && Array.isArray(pageConfig)){
     }))
   })
 }
+
 
 module.exports = webpackConfig;

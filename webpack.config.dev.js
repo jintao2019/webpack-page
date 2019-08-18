@@ -1,8 +1,10 @@
 
 const path = require('path')  
+const glob = require('glob')
 const HtmlWebpackPlugin = require('html-webpack-plugin');  
 const CleanWebpackPlugin = require('clean-webpack-plugin');
-const pageConfig = require('./page.config.js');
+
+const resolve = dir => path.resolve(__dirname, dir);
 
 let webpackConfig = {
   mode: 'none',
@@ -13,6 +15,12 @@ let webpackConfig = {
     path: path.join(__dirname, "./dist/"),  
     filename: 'static/js/[name].[hash:7].js',  
     publicPath: '/',  
+  },
+  resolve: {
+      // 设置别名
+      alias: {
+          '@': resolve('src')// 这样配置后 @ 可以指向 src 目录
+      }
   },
   module: {
     rules: [
@@ -88,17 +96,39 @@ let webpackConfig = {
     contentBase: "./dist/",  
     historyApiFallback: true,  
     inline: true,  
-    hot: true,  
+    // hot: true,   // 不能添加hot
     host: '127.0.0.1',
   }  
 };
 
+
+function getEntry () {
+  let globPath = './src/pages/**/*.html'
+  // (\/|\\\\) 这种写法是为了兼容 windows和 mac系统目录路径的不同写法
+  let pathDir = 'src(\/|\\\\)(.*?)(\/|\\\\)html'
+  let files = glob.sync(globPath)
+  let dirname, entries = []
+  for (let i = 0; i < files.length; i++) {
+    dirname = path.dirname(files[i])
+    var name = dirname.replace(new RegExp('^' + pathDir), '$2').slice(12);
+    var obj = {
+      name,
+      html: `./src/pages/${name}/${name}.html`,
+      jsEntry: `./src/pages/${name}/${name}.js`,
+    }
+    entries.push(obj)
+  }
+  return entries
+}
+
+const pageConfig = getEntry();
+
 if(pageConfig && Array.isArray(pageConfig)){
   pageConfig.map(page => {
-    webpackConfig.entry[page.name] = `./src/pages/${page.jsEntry}`;
+    webpackConfig.entry[page.name] = page.jsEntry;
     webpackConfig.plugins.push(new HtmlWebpackPlugin({
       filename: path.join(__dirname,`/dist/${page.name}.html`),
-      template: path.join(__dirname,`/src/pages/${page.html}`),
+      template: path.join(__dirname,`/src/pages/${page.name}/${page.name}.html`),
       inject: true,
       chunks: [page.name],  
       inlineSource: '.(js|css)$',

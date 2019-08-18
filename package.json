@@ -5,13 +5,13 @@
   "main": "index.js",
   "scripts": {
     "build": "webpack --config webpack.config.prod.js",
-    "dev": "webpack-dev-server --hot --inline  --watch --host 127.0.0.1 --config webpack.config.dev.js"
+    "dev": "webpack-dev-server  --inline  --watch --host 127.0.0.1 --config webpack.config.dev.js"
   },
   "repository": {
     "type": "git",
     "url": ""
   },
-  "author": "215696013@qq.com",
+  "author": "2019jintao@gmail.com",
   "license": "MIT",
   "dependencies": {
     "normalize.css": "^8.0.0"

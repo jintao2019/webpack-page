@@ -1,8 +1,7 @@
 /* eslint-disable */
 import './about.less';
-console.log('11111');
 
-import imgUrl from '../../images/cat.jpeg';
+import imgUrl from '@/assets/img/cat.jpeg';
 
 
 const img = document.createElement("img");
